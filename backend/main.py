@@ -55,7 +55,9 @@ def get_recommendations():
 @app.get("/api/orders")
 def get_orders(userId: str):
     return data.get_orders(userId)
-
+@app.get("/api/orders/{order_id}")
+def get_order_by_id(order_id: str):
+    order = data.get_order(order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order

@@ -139,7 +139,23 @@ class DataLoader:
         return [o for o in self.orders if o["customerId"] == user_id]
 
     def get_order(self, order_id):
-        return next((o for o in self.orders if o["id"] == order_id), None)
+        # 1. Exact Match
+        order = next((o for o in self.orders if o["id"] == order_id), None)
+        if order: 
+            return order
+        
+        # 2. Case-Insensitive Match
+        order = next((o for o in self.orders if o["id"].lower() == order_id.lower()), None)
+        if order:
+            return order
+
+        # 3. Partial Match (e.g. user says "8892" for "ORD-123...8892" or "99" for "O0099")
+        # useful for voice usage
+        if len(order_id) >= 2:
+            order = next((o for o in self.orders if order_id in o["id"] or o["id"].endswith(order_id)), None)
+            
+        return order
+
     
     def cancel_order(self, order_id):
         order = self.get_order(order_id)

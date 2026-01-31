@@ -17,7 +17,7 @@ export const db = {
             const params = new URLSearchParams();
             if (query) params.append("q", query);
             if (category) params.append("cat", category);
-            
+
             const res = await fetch(`${API_BASE_URL}/products/search?${params.toString()}`);
             if (!res.ok) throw new Error("Search failed");
             return await res.json();
@@ -99,22 +99,30 @@ export const db = {
     },
 
     createOrder: async (customerId: string): Promise<Order | null> => {
-        // NOTE: In a real app, this would be a POST /api/orders
-        // For now, we simulate success and clear local cart, as backend order creation wasn't fully specced in the file dump
-        // We will just return a mock "Success" order to satisfy the UI flow
         if (SESSION_CART.items.length === 0) return null;
 
-        const newOrder: Order = {
-            id: `O${Math.floor(Math.random() * 10000)}`,
-            customerId,
-            items: [...SESSION_CART.items],
-            status: 'Placed',
-            date: new Date().toISOString().split('T')[0],
-            total: SESSION_CART.total
-        };
+        try {
+            const res = await fetch(`${API_BASE_URL}/orders`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: customerId,
+                    items: SESSION_CART.items.map(i => ({
+                        productId: i.productId,
+                        quantity: i.quantity
+                    }))
+                })
+            });
 
-        SESSION_CART = { items: [], total: 0 }; 
-        return newOrder;
+            if (!res.ok) throw new Error("Order creation failed on backend");
+
+            const newOrder = await res.json();
+            SESSION_CART = { items: [], total: 0 };
+            return newOrder;
+        } catch (e) {
+            console.error("API Error during checkout:", e);
+            return null;
+        }
     },
 
     // 3. CART API (Client-Side, Session based)
@@ -137,7 +145,7 @@ export const db = {
                 quantity
             });
         }
-        
+
         SESSION_CART.total = SESSION_CART.items.reduce((acc, i) => acc + (i.price * i.quantity), 0);
         return { ...SESSION_CART };
     },
@@ -177,7 +185,7 @@ export const db = {
 
     // 6. ADMIN / DYNAMIC UPDATES API
     uploadDataset: async (type: 'products' | 'orders' | 'policies' | 'faqs', data: any[]) => {
-       console.log("Upload not supported in this version.");
-       return true;
+        console.log("Upload not supported in this version.");
+        return true;
     }
 };
