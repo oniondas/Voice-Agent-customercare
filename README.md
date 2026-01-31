@@ -14,11 +14,11 @@ A state-of-the-art **Multimodal AI Voice Agent** designed for high-performance, 
 graph TD
     %% Nodes
     User([👤 User])
-    Frontend[💻 React Frontend<br><i>(Body & I/O)</i>]
-    AI[🧠 Gemini 2.5 Flash<br><i>(The Brain)</i>]
-    Backend[⚙️ FastAPI Backend<br><i>(The Memory)</i>]
-    VectorDB[(🗄️ ChromaDB<br><i>Vectors</i>)]
-    FileDB[(📄 JSON/MD Files<br><i>Products/Policies</i>)]
+    Frontend["💻 React Frontend<br><i>(Body & I/O)</i>"]
+    AI["🧠 Gemini 2.5 Flash<br><i>(The Brain)</i>"]
+    Backend["⚙️ FastAPI Backend<br><i>(The Memory)</i>"]
+    VectorDB[("🗄️ ChromaDB<br><i>Vectors</i>")]
+    FileDB[("📄 JSON/MD Files<br><i>Products/Policies</i>")]
 
     %% Flow
     User <-->|🎤 Voice Input / 🔊 Audio Output| Frontend
@@ -88,7 +88,7 @@ npm run dev
 
 ---
 
-## � Future Optimizations
+## Future Optimizations
 
 To further enhance performance and reduce costs, we have a detailed roadmap:
 
@@ -102,6 +102,6 @@ To further enhance performance and reduce costs, we have a detailed roadmap:
 
 ---
 
-## �📚 Documentation
+## 📚 Documentation
 -   **[HACKATHON_GUIDE.md](./HACKATHON_GUIDE.md)**: Deep dive into the architecture and hackathon-specific features.
 -   **[COST_AND_LATENCY.md](./COST_AND_LATENCY.md)**: Details on cost estimation and latency optimization.
