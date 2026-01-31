@@ -1,153 +1,182 @@
-# NeurologicAI Store - Backend & Database Architecture
+# 🎙️ NeurologicAI Store - Multi-Modal Voice Agent
 
-This document outlines the architectural requirements for the real backend system that will replace the `mockData.ts` simulation.
-
-## System Overview
-
-The application is designed as a **Tool-First AI Agent**. The frontend (React) and the AI (Gemini) do not hold the "Truth". They act as interfaces. The Backend Database is the single source of truth.
-
-### Data Flow Strategy
-1.  **On Mount**: The Frontend fetches `System Context` (User ID, Categories, Policy Headers).
-2.  **On Interaction**: When the user speaks, Gemini outputs a **Tool Call**.
-3.  **Tool Execution**: The Frontend calls the Backend API (e.g., `POST /api/search`).
-4.  **Freshness (On-Demand)**: The Frontend fetches fresh data immediately when the user navigates to a new view (e.g., opening the dashboard or checking an order).
+A sophisticated e-commerce voice agent that combines **real-time bidirectional audio**, **tool usage**, and a **vector-powered backend** to provide an intelligent shopping experience.
 
 ---
 
-## Database Architecture & Vector Search
+## 🏗️ Architecture
 
-The database must support both **Structured Data** (SQL/NoSQL) and **Unstructured Data** (Vector Embeddings).
+The system follows a modern **Tool-First Agentic Architecture** where the frontend is the "Body" (senses & actions), the Backend is the "Memory" (database), and Gemini is the "Brain".
 
-### 1. Structured Data (SQL/PostgreSQL recommended)
-Used for transactional consistency: Products, Orders, Inventory.
+```mermaid
+graph TD
+    User((👤 User))
+    
+    subgraph Frontend ["🖥️ Frontend (React + Vite)"]
+        Audio[Audio Only]
+        UI[Visual Interface]
+        Tools[Tool Executor]
+        Socket[WebSocket Client]
+    end
 
-**Tables:**
-*   `products`: id, name, price, stock (INT), delivery_days, attributes (JSONB).
-*   `orders`: id, user_id, status (ENUM), total, items (JSONB).
-*   `users`: id, name, preferences, search_history (JSONB), purchase_history (JSONB).
+    subgraph Brain ["🧠 Intelligence (Google Cloud)"]
+        Gemini[✨ Gemini 2.0 Flash]
+    end
 
-### 2. Unstructured Data & Vector Search (Critical)
-Used for **Policies**, **FAQs**, and **Product Recommendations**.
+    subgraph Backend ["⚙️ Backend (FastAPI)"]
+        API[REST API]
+        VectorDB[Vector Search (Chroma/Faiss)]
+        SQL[Data Store (JSON/DB)]
+    end
 
-**Implementation:**
-*   **Database**: PostgreSQL with `pgvector` or a specialized DB like Pinecone/Weaviate.
-*   **Process**:
-    1.  Chunk long policy documents into smaller segments.
-    2.  Generate Embeddings for Policy segments AND Product Descriptions.
-    3.  Store embeddings in the database.
+    User <-->|Microphone/Speaker| Audio
+    User <-->|Visuals| UI
+    
+    Audio -->|Audio Stream| Socket
+    Socket <-->|Real-time Audio & Tools| Gemini
+    
+    Gemini -->|1. Tool Call| Socket
+    Socket -->|2. Execute| Tools
+    Tools <-->|3. Fetch Data| API
+    
+    API <--> SQL
+    API <--> VectorDB
+    
+    Tools -->|4. Tool Result| Socket
+    Socket -->|5. Context Update| Gemini
+    Gemini -->|6. Natural Response| Audio
+```
 
-**Recommendation Logic (Hybrid Search):**
-To fulfill the requirement of suggesting products based on history/cart/inquiry:
-1.  **User Profile Vector**: Create a composite vector average of the user's recent search queries + last 3 purchased items.
-2.  **Cart Vector**: Create a vector for items currently in the cart.
-3.  **Query**: Perform a vector similarity search against the `products` table (where product descriptions are embedded) using a weighted combination of User Profile Vector (40%) and Cart Vector (60%).
+### Components
 
----
+1.  **Frontend (React + TypeScript)**:
+    *   **Role**: Handles user interaction, audio streaming, and tool execution.
+    *   **Key Service**: `GeminiLiveService.ts` manages the WebSocket connection to Google's Multimodal Live API.
+    *   **State Management**: Updates the UI dynamically based on the AI's actions (e.g., showing a product when the AI "finds" it).
 
-## API Contract (Endpoints)
+2.  **Backend (FastAPI + Python)**:
+    *   **Role**: The "Single Source of Truth". Manages products, orders, and policies.
+    *   **Vector Search**: Uses embeddings to allow "Semantic Search" (e.g., searching for "something for gaming" finds a high-spec laptop even if the word 'gaming' isn't in the title).
+    *   **Data Persistence**: Reads/Writes to JSON files (`Files/` directory) acting as a database.
 
-The Frontend expects the following REST endpoints. All responses should be JSON.
-
-### Product Catalog
-*   `GET /api/products/search?q={query}&cat={category}`
-    *   **Logic**: 
-        *   If `q` is present: Perform fuzzy string matching OR full-text search on Name/Description.
-        *   Return limited fields: `id`, `name`, `price`, `stock`, `rating`, `deliveryTimeDays`.
-*   `GET /api/products/{id}`
-    *   **Logic**: Return full details including `features` array.
-*   `GET /api/products/recommendations?userId={id}`
-    *   **Logic**: **Intelligent Personalization**.
-        *   **Input**: User ID, Current Cart contents (passed in body or retrieved from session).
-        *   **Algorithm**:
-            1.  **Recent Inquiry**: Analyze the last 5 search terms from the user.
-            2.  **Cart Context**: If cart has "Laptop", boost accessories like "Mouse", "Bag".
-            3.  **Purchase History**: Exclude items already bought.
-            4.  **Vector Match**: Find products semantically similar to the aggregated context.
-        *   **Output**: Top 5 relevant products.
-*   `GET /api/products/{id}/related`
-    *   **Logic**: Return 3 products in the same category with high ratings.
-
-### Order Management
-*   `GET /api/orders?userId={id}`
-*   `GET /api/orders/{id}`
-*   `POST /api/orders/{id}/cancel`
-    *   **Logic**: Only allow if status is 'Placed'. Else return 400 error.
-
-### Knowledge Base (Vector Powered)
-*   `GET /api/policies/search?topic={topic}`
-    *   **Input**: "Can I return a used shirt?"
-    *   **Backend Logic**: Embed input -> Vector Search -> Return most relevant policy text block.
-*   `GET /api/products/{id}/faq`
-    *   **Logic**: Return FAQs specific to the product ID.
-
-### Cart (Session)
-*   `GET /api/cart`
-*   `POST /api/cart/add` (Body: `{ productId, quantity }`)
-*   `POST /api/cart/checkout` (Body: `{ userId }`)
+3.  **AI Model (Gemini 2.0 Flash)**:
+    *   **Role**: The Orchestrator. It listens to audio, decides *when* to use tools (like searching for a product), and allows the frontend to execute them.
 
 ---
 
-## Example Workflow: "I need a laptop"
+## 🔄 How it Works
 
-Here is the step-by-step data flow when a user interacts with the agent to find a product.
+### ⚡ Detailed Breakdown
+1.  **Initialization**:
+    *   When the app starts, the Frontend fetches the `System Context` (current user ID, available categories) from the Backend to prime the AI's prompts.
+    
+2.  **The Conversation Loop**:
+    *   **User Speaks**: "I need a headphone for running."
+    *   **Streaming**: The audio is streamed chunk-by-chunk to Gemini via WebSocket.
+    *   **Intent Recognition**: Gemini analyses the audio in real-time. It recognizes the intent is **shopping search**.
+    
+3.  **Tool Execution Strategy**:
+    *   Gemini pauses generation and sends a **Tool Call** message: `search_products(query="headphone", category="running")`.
+    *   The **Frontend intercepts** this message. It does *not* generate audio yet.
+    *   The Frontend calls the **Backend API** (`GET /api/products/search`).
+    
+4.  **Backend Intelligence**:
+    *   The Backend receives the query.
+    *   It performs a **Hybrid Search**:
+        *   *Keyword*: Checks for exact matches.
+        *   *Vector*: Checks for semantic matches (understanding that "running" implies "sweat-proof" or "secure fit").
+    *   It returns a list of JSON products.
 
-### 1. User Input (Frontend)
-*   **Action**: User speaks: *"I need a powerful laptop for work."*
-*   **System**: `GeminiLiveService` captures audio, sends it to the Gemini Model via WebSocket.
+5.  **Closing the Loop**:
+    *   The Frontend sends this JSON data back to Gemini as a **Tool Response**.
+    *   Gemini "reads" the results and generates a natural voice response: *"I found a few great options. The SportBuds Pro are perfect for running..."*
+    *   Simultaneously, the Frontend **updates the UI** to display the product cards visually.
 
-### 2. Reasoning & Tool Selection (Gemini Model)
-*   **Analysis**: Gemini identifies the intent is "Product Search".
-*   **Constraint Check**: It checks its system instructions: *"You do NOT have a local database. You MUST use tools."*
-*   **Decision**: It decides to call the tool `search_products`.
-*   **Parameter Generation**: It extracts key terms: `{"query": "powerful laptop", "category": "Electronics"}`.
-*   **Output**: Sends a `ToolCall` message back to the Frontend.
-
-### 3. Tool Execution (Frontend Layer)
-*   **Action**: `services/tools.ts` intercepts the `ToolCall`.
-*   **API Request**: It triggers an asynchronous fetch to the Backend:
-    ```http
-    GET /api/products/search?q=powerful%20laptop&cat=Electronics
-    ```
-
-### 4. Data Retrieval (Backend Layer)
-*   **Logic**: The backend receives the query.
-*   **Database Query**:
-    ```sql
-    SELECT * FROM products
-    WHERE category = 'Electronics'
-    AND (name ILIKE '%laptop%' OR description ILIKE '%powerful%')
-    AND stock > 0
-    ORDER BY rating DESC
-    LIMIT 8;
-    ```
-*   **Response**: Returns a JSON array of product objects (e.g., "Quanta Laptop Plus").
-
-### 5. Context Update & UI Refresh (Frontend)
-*   **State Update**: The Frontend receives the JSON. It updates the React State (`state.products`), causing the UI to immediately render the list of laptops card grid.
-*   **Feedback Loop**: The Frontend sends the JSON result back to Gemini so it knows what was found:
-    ```json
-    [
-      { "id": "P1007", "name": "Quanta Laptop Plus", "price": 1386.90, "features": ["High Performance", "16GB RAM"] }
-    ]
-    ```
-
-### 6. Response Generation (Gemini Model)
-*   **Synthesis**: Gemini reads the JSON tool output.
-*   **Generation**: It generates a natural language response based on the data:
-    *"I found the Quanta Laptop Plus. It's a high-performance machine perfect for work, priced at $1,386.90. It has a high rating. Would you like to see the full specs?"*
-
-### 7. Audio Output (Frontend)
-*   **Action**: Frontend receives the audio stream of the response and plays it to the user.
+### 📝 Concise Summary
+*   **User** speaks.
+*   **Gemini** hears and creates a *Function Call*.
+*   **React** executes the function by calling the **Python Backend**.
+*   **Backend** returns real data.
+*   **Gemini** uses that data to answer the user.
+*   **Screen** updates automatically to show what is being discussed.
 
 ---
 
-## Dynamic Data & Freshness
+## 📊 Logic Flowchart
 
-The Frontend implements an **On-Demand Refresh Strategy** (in `App.tsx`).
-*   **Trigger**: View Navigation (`state.mode` changes).
-*   **Behavior**:
-    *   **Dashboard**: Refreshes "Recommended Products" to ensure stock is accurate.
-    *   **Order Detail**: Fetches the latest status for the specific order.
-    *   **Cart**: Re-syncs with the server to validate stock and totals.
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as Frontend (React)
+    participant G as Gemini (AI)
+    participant B as Backend (FastAPI)
 
-This ensures data is always fresh when the user asks for it, without unnecessary background network traffic.
+    U->>F: "Where is my order #123?"
+    F->>G: Stream Audio
+    G->>F: Tool Scan: track_order(id="123")
+    
+    rect rgb(240, 248, 255)
+        Note over F, B: Tool Execution Phase
+        F->>B: GET /api/orders/123
+        B-->>F: { status: "Shipped", eta: "2 days" }
+    end
+    
+    F->>F: Update UI -> Show Order Card
+    F->>G: Tool Output: { status: "Shipped"... }
+    
+    G-->>F: Audio: "Your order is shipped..."
+    F->>U: Play Audio
+```
+
+---
+
+## 🚀 Setup & Installation
+
+### Prerequisites
+*   **Node.js** (v18+)
+*   **Python** (v3.10+)
+*   **Google Gemini API Key** (Multimodal Live API access required)
+
+### 1. Backend Setup
+The backend serves the data and handles logic.
+
+```bash
+cd backend
+# Create virtual environment
+python -m venv venv
+# Activate (Windows)
+.\venv\Scripts\activate
+# Activate (Mac/Linux)
+# source venv/bin/activate
+
+# Install dependencies
+pip install fastapi uvicorn sentence-transformers chromadb numpy
+
+# Run the server
+python main.py
+```
+*Server runs at `http://localhost:8000`*
+
+### 2. Frontend Setup
+The visual interface and AI connection.
+
+```bash
+# In the root directory
+npm install
+
+# Create .env.local file
+echo "VITE_GEMINI_API_KEY=your_api_key_here" > .env.local
+
+# Run the dev server
+npm run dev
+```
+*App runs at `http://localhost:5173`*
+
+### 3. Usage
+1.  Open the localhost URL in Chrome/Edge.
+2.  Click **"Start Agent"**.
+3.  Speak naturally! Try:
+    *   *"Show me some gaming laptops."*
+    *   *"Which one is cheaper?"*
+    *   *"Add the first one to my cart."*
+    *   *"What is your return policy?"*

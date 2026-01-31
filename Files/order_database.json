@@ -737,5 +737,44 @@
                 "price_at_purchase": 13869
             }
         ]
+    },
+    {
+        "order_id": "O0101",
+        "customer_id": "seq_test_user",
+        "order_status": "Processing",
+        "order_date": "2026-01-31",
+        "items": [
+            {
+                "product_id": "P1002",
+                "quantity": 1,
+                "price_at_purchase": 49033
+            }
+        ]
+    },
+    {
+        "order_id": "O0102",
+        "customer_id": "seq_test_user",
+        "order_status": "Processing",
+        "order_date": "2026-01-31",
+        "items": [
+            {
+                "product_id": "P1002",
+                "quantity": 1,
+                "price_at_purchase": 49033
+            }
+        ]
+    },
+    {
+        "order_id": "O0103",
+        "customer_id": "C0001",
+        "order_status": "Processing",
+        "order_date": "2026-01-31",
+        "items": [
+            {
+                "product_id": "P1006",
+                "quantity": 1,
+                "price_at_purchase": 33648
+            }
+        ]
     }
 ]

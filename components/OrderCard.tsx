@@ -18,7 +18,7 @@ const OrderCard: React.FC<Props> = ({ order }) => {
   };
 
   const getStatusColor = (status: string) => {
-     switch (status) {
+    switch (status) {
       case 'Delivered': return 'bg-green-50 text-green-700 border-green-200';
       case 'Cancelled': return 'bg-red-50 text-red-700 border-red-200';
       case 'Shipped': return 'bg-blue-50 text-blue-700 border-blue-200';
@@ -47,22 +47,22 @@ const OrderCard: React.FC<Props> = ({ order }) => {
           <div key={idx} className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">
-                 {/* Placeholder for product img */}
-                 <Package size={20} />
+                {/* Placeholder for product img */}
+                <Package size={20} />
               </div>
               <div>
                 <p className="font-medium text-slate-800">{item.name}</p>
                 <p className="text-sm text-slate-500">Qty: {item.quantity}</p>
               </div>
             </div>
-            <p className="font-medium text-slate-900">${item.price.toFixed(2)}</p>
+            <p className="font-medium text-slate-900">₹{item.price.toFixed(2)}</p>
           </div>
         ))}
       </div>
 
       <div className="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center">
         <span className="font-medium text-slate-600">Total Amount</span>
-        <span className="text-xl font-bold text-slate-900">${order.total.toFixed(2)}</span>
+        <span className="text-xl font-bold text-slate-900">₹{order.total.toFixed(2)}</span>
       </div>
     </div>
   );

@@ -38,7 +38,7 @@ class DataLoader:
 
     def load_products(self):
         try:
-            with open(f"{self.base_path}/product_catalog.json", "r") as f:
+            with open(f"{self.base_path}/product_catalog.json", "r", encoding="utf-8") as f:
                 raw_products = json.load(f)
                 # Map JSON fields to our internal/frontend schema if needed
                 # The frontend expects camelCase, but raw is snake_case. 
@@ -65,7 +65,7 @@ class DataLoader:
 
     def load_orders(self):
         try:
-            with open(f"{self.base_path}/order_database.json", "r") as f:
+            with open(f"{self.base_path}/order_database.json", "r", encoding="utf-8") as f:
                 raw_orders = json.load(f)
                 self.orders = []
                 for o in raw_orders:
@@ -91,7 +91,7 @@ class DataLoader:
 
     def load_faqs(self):
         try:
-            with open(f"{self.base_path}/product_faqs.json", "r") as f:
+            with open(f"{self.base_path}/product_faqs.json", "r", encoding="utf-8") as f:
                 raw_faqs = json.load(f)
                 self.faqs = []
                 for item in raw_faqs:
@@ -109,7 +109,7 @@ class DataLoader:
     def load_policies(self):
         try:
             # Simple markdown parsing by headers
-            with open(f"{self.base_path}/Company_policies.md", "r") as f:
+            with open(f"{self.base_path}/Company_policies.md", "r", encoding="utf-8") as f:
                 content = f.read()
             
             # Split by headers (e.g., **Policy Name**)
@@ -260,7 +260,21 @@ class DataLoader:
 
         # 3. Create Order Object
         import datetime
-        order_id = f"ORD-{int(datetime.datetime.now().timestamp())}"
+        
+        # Calculate Next Order ID (Sequential)
+        max_id = 0
+        for o in self.orders:
+            if o["id"].startswith("O") and o["id"][1:].isdigit():
+                try:
+                    num = int(o["id"][1:])
+                    if num > max_id:
+                        max_id = num
+                except:
+                    pass
+        
+        next_id_val = max_id + 1
+        order_id = f"O{next_id_val:04d}"
+
         new_order = {
             "id": order_id,
             "customerId": user_id,

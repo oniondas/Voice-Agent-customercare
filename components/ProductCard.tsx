@@ -10,11 +10,11 @@ interface Props {
 }
 
 const ProductCard: React.FC<Props> = ({ product, detailed = false, onAddToCart }) => {
-  
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onAddToCart) {
-        onAddToCart(product.id);
+      onAddToCart(product.id);
     }
   };
 
@@ -30,15 +30,15 @@ const ProductCard: React.FC<Props> = ({ product, detailed = false, onAddToCart }
           <span className="text-slate-400 ml-1">({product.reviews})</span>
         </div>
       </div>
-      
+
       <h3 className={`${detailed ? 'text-2xl' : 'text-lg'} font-bold text-slate-800 mb-2`}>{product.name}</h3>
-      
+
       <div className="mb-4 flex items-center gap-3">
-        <span className="text-xl font-bold text-slate-900">${product.price.toFixed(2)}</span>
+        <span className="text-xl font-bold text-slate-900">₹{product.price.toFixed(2)}</span>
         {product.discountPercentage && product.discountPercentage > 0 && (
-            <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-full flex items-center gap-1">
-                <Tag size={12} /> -{product.discountPercentage}%
-            </span>
+          <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-full flex items-center gap-1">
+            <Tag size={12} /> -{product.discountPercentage}%
+          </span>
         )}
       </div>
 
@@ -58,18 +58,18 @@ const ProductCard: React.FC<Props> = ({ product, detailed = false, onAddToCart }
             <span>Out of Stock</span>
           </div>
         )}
-        
+
         {detailed && (
-            <>
-                <div className="flex items-center text-slate-600 text-sm">
-                    <Truck size={16} className="mr-2" />
-                    <span>Delivers in {product.deliveryTimeDays} days</span>
-                </div>
-                <div className={`flex items-center text-sm ${product.returnEligible ? 'text-slate-600' : 'text-amber-600'}`}>
-                    <RotateCcw size={16} className="mr-2" />
-                    <span>{product.returnEligible ? '30-Day Returns Eligible' : 'Final Sale - No Returns'}</span>
-                </div>
-            </>
+          <>
+            <div className="flex items-center text-slate-600 text-sm">
+              <Truck size={16} className="mr-2" />
+              <span>Delivers in {product.deliveryTimeDays} days</span>
+            </div>
+            <div className={`flex items-center text-sm ${product.returnEligible ? 'text-slate-600' : 'text-amber-600'}`}>
+              <RotateCcw size={16} className="mr-2" />
+              <span>{product.returnEligible ? '30-Day Returns Eligible' : 'Final Sale - No Returns'}</span>
+            </div>
+          </>
         )}
       </div>
 
@@ -89,18 +89,17 @@ const ProductCard: React.FC<Props> = ({ product, detailed = false, onAddToCart }
 
       {/* Action Area */}
       <div className="mt-auto pt-4 border-t border-slate-100">
-         <button 
-            onClick={handleAddToCart}
-            disabled={product.stock === 0}
-            className={`w-full py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors ${
-                product.stock > 0 
-                ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+        <button
+          onClick={handleAddToCart}
+          disabled={product.stock === 0}
+          className={`w-full py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors ${product.stock > 0
+              ? 'bg-blue-600 text-white hover:bg-blue-700'
+              : 'bg-slate-100 text-slate-400 cursor-not-allowed'
             }`}
-         >
-             <ShoppingCart size={18} />
-             {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-         </button>
+        >
+          <ShoppingCart size={18} />
+          {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+        </button>
       </div>
     </div>
   );
