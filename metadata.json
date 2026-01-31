@@ -1,0 +1,7 @@
+{
+  "name": "NeurologicAI Voice Support",
+  "description": "An AI-powered voice agent for e-commerce customer support, capable of handling product queries, order tracking, and policy questions in real-time.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
