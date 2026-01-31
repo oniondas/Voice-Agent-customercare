@@ -1,0 +1,9 @@
+{
+    "userId": "demo_user",
+    "items": [
+        {
+            "productId": "P1002",
+            "quantity": 1
+        }
+    ]
+}

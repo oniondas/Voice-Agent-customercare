@@ -56,12 +56,31 @@ def get_recommendations():
 def get_orders(userId: str):
     return data.get_orders(userId)
 
-@app.get("/api/orders/{order_id}")
-def get_order_by_id(order_id: str):
-    order = data.get_order(order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+from pydantic import BaseModel
+
+class OrderItem(BaseModel):
+    productId: str
+    quantity: int
+
+class OrderRequest(BaseModel):
+    userId: str
+    items: List[OrderItem]
+
+@app.post("/api/orders")
+def create_order(request: OrderRequest):
+    # Convert Pydantic model to dict list
+    items_data = [{"productId": i.productId, "quantity": i.quantity} for i in request.items]
+    
+    success, result = data.create_order(request.userId, items_data)
+    
+    if not success:
+        raise HTTPException(status_code=400, detail=result)
+    
+    return result
 
 @app.post("/api/orders/{order_id}/cancel")
 def cancel_order(order_id: str):
