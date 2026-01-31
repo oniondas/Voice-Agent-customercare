@@ -49,5 +49,3 @@ ENV/
 chroma_db/
 vector_cache/
 
-
-.env

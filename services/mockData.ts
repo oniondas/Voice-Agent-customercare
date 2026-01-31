@@ -1,7 +1,7 @@
 import { Product, Order, Policy, FAQ, Cart } from '../types';
 
 // --- API CONFIG ---
-const API_BASE_URL = "http://localhost:8000/api";
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000") + "/api";
 
 // --- CLIENT-SIDE STATE ---
 // Cart is still session-based on the client for now, or could sync with backend if backend supported session/cart persistence.

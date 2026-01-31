@@ -33,8 +33,9 @@ class DataLoader:
         if self.vector_db and self.products:
             try:
                 self.vector_db.index_products(self.products)
+                self.vector_db.index_policies(self.policies)
             except Exception as e:
-                print(f"Warning: Failed to index products in vector DB: {e}")
+                print(f"Warning: Failed to index in vector DB: {e}")
 
     def load_products(self):
         try:
@@ -169,6 +170,18 @@ class DataLoader:
 
     def get_faqs(self, product_id):
         return [f for f in self.faqs if f["productId"] == product_id]
+
+    def search_policies(self, query: str):
+        """Semantic search for policies"""
+        if self.vector_db:
+            return self.vector_db.search_policies(query)
+        
+        # Fallback to simple keyword match if vector db is not available
+        results = []
+        for title, body in self.policies.items():
+            if query.lower() in title.lower() or query.lower() in body.lower():
+                results.append({"title": title, "content": body, "similarity_score": 0.5})
+        return results
 
     # --- Write Operations ---
 

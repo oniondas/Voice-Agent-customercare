@@ -207,7 +207,7 @@ const App: React.FC = () => {
                     <div className="space-y-6">
                         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white shadow-lg relative overflow-hidden">
                             <div className="relative z-10">
-                                <h2 className="text-3xl font-bold mb-2">Welcome to Garlic Store</h2>
+                                <h2 className="text-3xl font-bold mb-2">Welcome to NeurologicAI Store</h2>
                                 <p className="text-blue-100 max-w-xl">
                                     I'm your intelligent shopping assistant. I can help you find products,
                                     recommend accessories, and handle your entire purchase.
@@ -353,7 +353,7 @@ const App: React.FC = () => {
                         <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
                             <ShoppingBag size={20} />
                         </div>
-                        <span className="hidden lg:block">Garlic Store</span>
+                        <span className="hidden lg:block">NeuroShop</span>
                     </div>
 
                     <nav className="mt-8 px-4 space-y-2">

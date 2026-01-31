@@ -147,17 +147,16 @@ class SearchLogic:
         return sorted_products[:6] # Top 6
 
     def search_policies(self, topic):
-        # Keyword search in policy keys or content
-        topic_lower = topic.lower()
+        """Search for policies using semantic search"""
+        if not topic:
+            return "Please provide a topic to search for in our policies."
+            
+        # Use semantic search from data_loader
+        results = self.data_loader.search_policies(topic)
         
-        # 1. Check Titles
-        for title, content in self.data_loader.policies.items():
-            if topic_lower in title.lower():
-                return f"**{title}**\n\n{content}"
-        
-        # 2. Check Content as fallback
-        for title, content in self.data_loader.policies.items():
-            if topic_lower in content.lower():
-                return f"**{title}**\n\n{content}"
+        if results and len(results) > 0:
+            # Return the top match
+            top_hit = results[0]
+            return f"**{top_hit['title']}**\n\n{top_hit['content']}"
                 
         return "I couldn't find a specific policy for that topic. Please check our General Terms."

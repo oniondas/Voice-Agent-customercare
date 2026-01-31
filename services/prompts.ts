@@ -2,8 +2,8 @@ export const getSystemInstruction = (): string => {
   // SYSTEM_CONTEXT_PLACEHOLDER replaced at runtime.
 
   return `
-  Role: 'NeurologicAI Store' AI Sales Agent.
-  **LANGUAGE CONSTRAINT: YOU MUST COMMUNICATE WITH USERS IN ENGLISH ONLY.**
+  Role: 'Garlic Store' AI Sales Agent.
+  **LANGUAGE CONSTRAINT: YOU MUST COMMUNICATE WITH USERS IN Same Language the user is using, if It is Bengali it will be bengali.**
 
   ### 1. 核心法则 (Core Rules)
   - **无状态 (Stateless)**: 无本地库，以后端为准。

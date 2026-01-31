@@ -17,10 +17,16 @@ class VectorSearch:
         # Use default embedding function (all-MiniLM-L6-v2)
         self.embedding_fn = embedding_functions.DefaultEmbeddingFunction()
         
-        # Get or create collection
+        # Get or create collections
         # Using cosine distance for similarity search
         self.collection = self.client.get_or_create_collection(
             name="product_search",
+            embedding_function=self.embedding_fn,
+            metadata={"hnsw:space": "cosine"}
+        )
+        
+        self.policy_collection = self.client.get_or_create_collection(
+            name="policy_search",
             embedding_function=self.embedding_fn,
             metadata={"hnsw:space": "cosine"}
         )
@@ -147,4 +153,65 @@ class VectorSearch:
 
         except Exception as e:
             print(f"ChromaDB search failed: {e}")
+            return []
+    def index_policies(self, policies: Dict[str, str]):
+        """Index all policies using ChromaDB"""
+        if not policies:
+            print("No policies to index.")
+            return
+            
+        print(f"Indexing {len(policies)} policy sections with ChromaDB...")
+        
+        ids = []
+        documents = []
+        metadatas = []
+        
+        for title, content in policies.items():
+            ids.append(title)
+            # Combine title and content for better semantic matching
+            documents.append(f"{title}\n{content}")
+            metadatas.append({"title": title})
+            
+        try:
+            self.policy_collection.upsert(
+                ids=ids,
+                documents=documents,
+                metadatas=metadatas
+            )
+            print(f"Successfully indexed {len(policies)} policy sections in ChromaDB.")
+        except Exception as e:
+            print(f"Error indexing policies in ChromaDB: {e}")
+
+    def search_policies(self, query: str, limit: int = 3) -> List[Dict[str, Any]]:
+        """Perform semantic search on policies"""
+        if not query or not query.strip():
+            return []
+            
+        try:
+            results = self.policy_collection.query(
+                query_texts=[query],
+                n_results=limit
+            )
+            
+            if not results['ids'] or len(results['ids'][0]) == 0:
+                return []
+                
+            hits = []
+            ids = results['ids'][0]
+            distances = results['distances'][0]
+            metadatas = results['metadatas'][0]
+            docs = results['documents'][0]
+            
+            for i in range(len(ids)):
+                # Similarity = 1 - distance (for cosine)
+                similarity = 1.0 - distances[i]
+                hits.append({
+                    'title': ids[i],
+                    'content': docs[i],
+                    'similarity_score': similarity
+                })
+                
+            return hits
+        except Exception as e:
+            print(f"ChromaDB policy search failed: {e}")
             return []

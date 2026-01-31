@@ -322,7 +322,7 @@ This guide provides actionable strategies to reduce costs and improve performanc
 "You are the dedicated AI Sales and Support Agent for 'NeurologicAI Store'..."
 
 // ✅ Compressed
-"Role: NeurologicAI Store AI Agent. Use tools for all product/order queries..."
+"Role: Garlic Store AI Agent. Use tools for all product/order queries..."
 ```
 
 **Savings**: ~40-60% reduction in prompt tokens (from ~1000 to ~400 chars)
