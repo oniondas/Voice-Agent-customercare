@@ -8,38 +8,46 @@ A state-of-the-art **Multimodal AI Voice Agent** designed for high-performance, 
 
 The system uses a **Tool-First, Multimodal Architecture**. The "Brain" (Gemini) orchestrates the conversation, while the "Body" (Frontend) handles I/O, and the "Memory" (Backend) manages data.
 
-### 🔄 Component Architecture
+### 🔄 System Architecture
 
 ```mermaid
-graph LR
-    subgraph Frontend["Frontend Layer"]
-        direction TB
-        App[App.tsx<br/>State Management]
-        GLS[GeminiLiveService.ts<br/>WebSocket Handler]
-        Tools[tools.ts<br/>Tool Executor]
-        Mock[mockData.ts<br/>API Client]
+graph TB
+    subgraph Client["🖥️ Client Browser"]
+        UI[React UI<br/>Vite + TypeScript]
+        Audio[Audio I/O<br/>WebAudio API]
+        WS[WebSocket Client<br/>Real-time Streaming]
     end
     
-    subgraph Backend["Backend Layer"]
-        direction TB
-        Main[main.py<br/>FastAPI Routes]
-        DL[data_loader.py<br/>Data Management]
-        SL[search_logic.py<br/>Hybrid Search]
+    subgraph Cloud["☁️ Google Cloud"]
+        Gemini[Gemini 2.0 Flash<br/>Multimodal Live API]
     end
     
-    subgraph Storage["Data Layer"]
-        direction TB
-        VecDB[(Vector Cache<br/>ChromaDB)]
-        JSON[JSON Data<br/>Products/Orders]
+    subgraph Server["⚙️ Backend Server"]
+        API[FastAPI<br/>REST Endpoints]
+        Search[Search Engine<br/>Hybrid Search]
+        Vector[Vector DB<br/>ChromaDB]
+        Data[Data Store<br/>JSON Files]
     end
     
-    GLS --> Tools
-    Tools --> Mock
-    Mock -->|HTTP| Main
-    Main --> SL
-    SL --> VecDB
-    SL --> DL
-    DL --> JSON
+    UI <-->|User Actions| Audio
+    Audio <-->|Audio Stream| WS
+    WS <-->|Bidirectional<br/>Audio + JSON| Gemini
+    
+    Gemini -->|Tool Call| WS
+    WS -->|Execute Tool| UI
+    UI -->|HTTP Request| API
+    
+    API --> Search
+    Search --> Vector
+    Search --> Data
+    
+    API -->|Tool Result| UI
+    UI -->|Result JSON| WS
+    WS -->|Context| Gemini
+    
+    style Client fill:#e3f2fd
+    style Cloud fill:#fff3e0
+    style Server fill:#f3e5f5
 ```
 
 ### 🧠 Request Lifecycle (Sequence Diagram)
