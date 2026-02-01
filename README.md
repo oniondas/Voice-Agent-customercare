@@ -14,11 +14,11 @@ The system uses a **Tool-First, Multimodal Architecture**. The "Brain" (Gemini) 
 flowchart TD
     %% Global Styles
     classDef plain fill:#fff,stroke:#333,stroke-width:1px;
-    classDef client fill:#e1f5fe,stroke:#01579b,stroke-width:2px,rx:5,ry:5;
-    classDef cloud fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,rx:5,ry:5;
-    classDef server fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px,rx:5,ry:5;
-    classDef db fill:#fff3e0,stroke:#e65100,stroke-width:2px,shape:cylinder;
-    classDef user fill:#fff,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef client fill:#f5f5f5,stroke:#333,stroke-width:2px,rx:5,ry:5;
+    classDef cloud fill:#fff,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5,rx:5,ry:5;
+    classDef server fill:#fff,stroke:#333,stroke-width:2px,rx:5,ry:5;
+    classDef db fill:#eee,stroke:#333,stroke-width:2px,shape:cylinder;
+    classDef user fill:#fff,stroke:#000,stroke-width:2px;
 
     %% Nodes
     User([👤 User / Microphone]) :::user
