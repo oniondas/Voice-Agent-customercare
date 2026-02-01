@@ -1,6 +1,19 @@
 # 🏆 AI Voice Agent: Ecommerce & Support
 
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
+![Gemini](https://img.shields.io/badge/Google%20Gemini-8E75B2?style=for-the-badge&logo=google%20bard&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+
 A state-of-the-art **Multimodal AI Voice Agent** designed for high-performance, real-time voice interactions. Powered by **Gemini 2.5 Flash** and **FastAPI**, it delivers a seamless voice shopping experience with low latency and smart context awareness.
+
+## 📚 Documentation
+Detailed guides have been organized into the `docs/` folder:
+-   [🚀 Deployment Guide](docs/DEPLOYMENT.md)
+-   [💰 Cost & Latency](docs/COST_AND_LATENCY.md)
+-   [🧠 Recommendation Engine](docs/RECOMMENDATION_SYSTEM.md)
+-   [🛠️ Optimization Techniques](docs/OPTIMIZATION_GUIDE.md)
 
 ---
 
@@ -243,3 +256,10 @@ Voice Agent/
 │
 └── Files/                        # Data Source (JSONs)
 ```
+
+## 🔮 Future Roadmap
+
+-   [ ] **Voice Authentication**: Biometric verification for secure order history access.
+-   [ ] **Multi-language Support**: Spanish and Hindi support using Gemini's native multilingual capabilities.
+-   [ ] **Android Application**: Native wrapper for lower latency and background processing.
+-   [ ] **Analytics Dashboard**: Real-time admin view of user retention and popular products.
