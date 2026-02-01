@@ -11,43 +11,56 @@ The system uses a **Tool-First, Multimodal Architecture**. The "Brain" (Gemini) 
 ### 🔄 System Architecture
 
 ```mermaid
-graph TB
-    subgraph Client["🖥️ Client Browser"]
-        UI[React UI<br/>Vite + TypeScript]
-        Audio[Audio I/O<br/>WebAudio API]
-        WS[WebSocket Client<br/>Real-time Streaming]
+graph TD
+    %% Styles
+    classDef client fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000;
+    classDef cloud fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000;
+    classDef server fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000;
+    classDef db fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#000;
+
+    subgraph ClientSpace["🖥️ Client Side (Browser)"]
+        direction TB
+        User((👤 User))
+        UI[React Frontend]:::client
+        Audio[Audio Processor<br/>WebAudio API]:::client
+        WS_C[WebSocket Client]:::client
     end
     
-    subgraph Cloud["☁️ Google Cloud"]
-        Gemini[Gemini 2.0 Flash<br/>Multimodal Live API]
+    subgraph CloudSpace["☁️ Google Cloud"]
+        Gemini[⚡ Gemini 2.0 Flash<br/>Multimodal Live API]:::cloud
     end
     
-    subgraph Server["⚙️ Backend Server"]
-        API[FastAPI<br/>REST Endpoints]
-        Search[Search Engine<br/>Hybrid Search]
-        Vector[Vector DB<br/>ChromaDB]
-        Data[Data Store<br/>JSON Files]
+    subgraph ServerSpace["⚙️ Backend Infrastructure"]
+        direction TB
+        FastAPI[FastAPI Router]:::server
+        Logic[Hybrid Search Engine]:::server
+        
+        subgraph DataLayer["💾 Data Persistence"]
+            Vector[(ChromaDB<br/>Vector Store)]:::db
+            Files[(JSON Files<br/>Product Catalog)]:::db
+        end
     end
+
+    %% Audio Stream Flow (Bi-directional)
+    User <==>|🎤 Voice / 🔊 Audio| Audio
+    Audio <==>|PCM Stream (16kHz)| WS_C
+    WS_C <==>|🌐 Secure WebSocket (WSS)| Gemini
+
+    %% Tool Execution Flow (Control Path)
+    Gemini -.->|🛠️ Tool Call Request| WS_C
+    WS_C -.->|Dispatch| UI
+    UI == 🚀 Async API Call ==> FastAPI
     
-    UI <-->|User Actions| Audio
-    Audio <-->|Audio Stream| WS
-    WS <-->|Bidirectional<br/>Audio + JSON| Gemini
+    %% Backend Processing
+    FastAPI --> Logic
+    Logic <-->|🔍 Semantic Query| Vector
+    Logic <-->|📂 Key-Value Lookup| Files
     
-    Gemini -->|Tool Call| WS
-    WS -->|Execute Tool| UI
-    UI -->|HTTP Request| API
-    
-    API --> Search
-    Search --> Vector
-    Search --> Data
-    
-    API -->|Tool Result| UI
-    UI -->|Result JSON| WS
-    WS -->|Context| Gemini
-    
-    style Client fill:#e3f2fd
-    style Cloud fill:#fff3e0
-    style Server fill:#f3e5f5
+    %% Response Path
+    Logic -- JSON Data --> FastAPI
+    FastAPI == Response ==> UI
+    UI -.->|Tool Output Payload| WS_C
+    WS_C -.->|Context Injection| Gemini
 ```
 
 ### 🧠 Request Lifecycle (Sequence Diagram)
