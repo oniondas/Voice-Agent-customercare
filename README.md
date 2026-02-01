@@ -11,56 +11,59 @@ The system uses a **Tool-First, Multimodal Architecture**. The "Brain" (Gemini) 
 ### 🔄 System Architecture
 
 ```mermaid
-graph TD
-    %% Styles
-    classDef client fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000;
-    classDef cloud fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000;
-    classDef server fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000;
-    classDef db fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#000;
+flowchart TD
+    %% Global Styles
+    classDef plain fill:#fff,stroke:#333,stroke-width:1px;
+    classDef client fill:#e1f5fe,stroke:#01579b,stroke-width:2px,rx:5,ry:5;
+    classDef cloud fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,rx:5,ry:5;
+    classDef server fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px,rx:5,ry:5;
+    classDef db fill:#fff3e0,stroke:#e65100,stroke-width:2px,shape:cylinder;
+    classDef user fill:#fff,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5;
 
-    subgraph ClientSpace["🖥️ Client Side (Browser)"]
+    %% Nodes
+    User([👤 User / Microphone]) :::user
+    
+    subgraph ClientLayer ["🖥️ Client Application"]
         direction TB
-        User((👤 User))
-        UI[React Frontend]:::client
-        Audio[Audio Processor<br/>WebAudio API]:::client
-        WS_C[WebSocket Client]:::client
+        UI[⚛️ React Frontend]:::client
+        Audio[🔊 Audio Processor<br/>(WebAudio API)]:::client
+        WS_C[🔌 WebSocket Client]:::client
     end
     
-    subgraph CloudSpace["☁️ Google Cloud"]
-        Gemini[⚡ Gemini 2.5 Flash<br/>Multimodal Live API]:::cloud
+    subgraph CloudLayer ["☁️ AI Infrastructure"]
+        Gemini[🧠 Gemini 2.5 Flash<br/>(Multimodal Live API)]:::cloud
     end
     
-    subgraph ServerSpace["⚙️ Backend Infrastructure"]
+    subgraph BackendLayer ["⚙️ Backend Server"]
         direction TB
-        FastAPI[FastAPI Router]:::server
-        Logic[Hybrid Search Engine]:::server
+        subgraph Logic ["Application Logic"]
+            FastAPI[🚀 FastAPI Router]:::server
+            Engine[🔎 Hybrid Search Engine]:::server
+        end
         
-        subgraph DataLayer["💾 Data Persistence"]
-            Vector[(ChromaDB<br/>Vector Store)]:::db
-            Files[(JSON Files<br/>Product Catalog)]:::db
+        subgraph Data ["💾 Persistence"]
+            Vector[(🗄️ ChromaDB<br/>Vector Store)]:::db
+            JSON[(📂 JSON Files<br/>Product Catalog)]:::db
         end
     end
 
-    %% Audio Stream Flow (Bi-directional)
-    User <-->|"🎤 Voice / 🔊 Audio"| Audio
-    Audio <-->|"PCM Stream (16kHz)"| WS_C
-    WS_C <-->|"🌐 Secure WebSocket (WSS)"| Gemini
-
-    %% Tool Execution Flow (Control Path)
-    Gemini -.->|🛠️ Tool Call Request| WS_C
-    WS_C -.->|Dispatch| UI
-    UI == 🚀 Async API Call ==> FastAPI
+    %% Flows
+    User <==>|Audio Stream| Audio
+    Audio <==>|PCM 16kHz| WS_C
+    WS_C <==>|"Secure WSS"| Gemini
     
-    %% Backend Processing
-    FastAPI --> Logic
-    Logic <-->|🔍 Semantic Query| Vector
-    Logic <-->|📂 Key-Value Lookup| Files
+    Gemini -.->|"Tool Call"| WS_C
+    WS_C -.-> UI
+    UI ==>|"HTTP /api/search"| FastAPI
     
-    %% Response Path
-    Logic -- JSON Data --> FastAPI
-    FastAPI == Response ==> UI
-    UI -.->|Tool Output Payload| WS_C
-    WS_C -.->|Context Injection| Gemini
+    FastAPI ==> Engine
+    Engine <-->|"Semantic Check"| Vector
+    Engine <-->|"Keyword Lookup"| JSON
+    
+    Engine -- Results --> FastAPI
+    FastAPI -- JSON --> UI
+    UI -.->|"Context Update"| WS_C
+    WS_C -.-> Gemini
 ```
 
 ### 🧠 Request Lifecycle (Sequence Diagram)
