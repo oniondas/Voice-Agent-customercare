@@ -27,7 +27,7 @@ graph TD
     end
     
     subgraph CloudSpace["☁️ Google Cloud"]
-        Gemini[⚡ Gemini 2.0 Flash<br/>Multimodal Live API]:::cloud
+        Gemini[⚡ Gemini 2.5 Flash<br/>Multimodal Live API]:::cloud
     end
     
     subgraph ServerSpace["⚙️ Backend Infrastructure"]
@@ -42,9 +42,9 @@ graph TD
     end
 
     %% Audio Stream Flow (Bi-directional)
-    User <==>|🎤 Voice / 🔊 Audio| Audio
-    Audio <==>|PCM Stream (16kHz)| WS_C
-    WS_C <==>|🌐 Secure WebSocket (WSS)| Gemini
+    User <-->|"🎤 Voice / 🔊 Audio"| Audio
+    Audio <-->|"PCM Stream (16kHz)"| WS_C
+    WS_C <-->|"🌐 Secure WebSocket (WSS)"| Gemini
 
     %% Tool Execution Flow (Control Path)
     Gemini -.->|🛠️ Tool Call Request| WS_C
