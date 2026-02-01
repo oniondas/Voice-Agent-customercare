@@ -8,13 +8,6 @@
 
 A state-of-the-art **Multimodal AI Voice Agent** designed for high-performance, real-time voice interactions. Powered by **Gemini 2.5 Flash** and **FastAPI**, it delivers a seamless voice shopping experience with low latency and smart context awareness.
 
-## 📚 Documentation
-Detailed guides have been organized into the `docs/` folder:
--   [🚀 Deployment Guide](docs/DEPLOYMENT.md)
--   [💰 Cost & Latency](docs/COST_AND_LATENCY.md)
--   [🧠 Recommendation Engine](docs/RECOMMENDATION_SYSTEM.md)
--   [🛠️ Optimization Techniques](docs/OPTIMIZATION_GUIDE.md)
-
 ---
 
 ## 📐 Architecture & Data Flow
@@ -26,37 +19,37 @@ The system uses a **Tool-First, Multimodal Architecture**. The "Brain" (Gemini) 
 ```mermaid
 flowchart TD
     %% Global Styles
-    classDef plain fill:#fff,stroke:#333,stroke-width:1px;
-    classDef client fill:#f5f5f5,stroke:#333,stroke-width:2px,rx:5,ry:5;
-    classDef cloud fill:#fff,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5,rx:5,ry:5;
-    classDef server fill:#fff,stroke:#333,stroke-width:2px,rx:5,ry:5;
-    classDef db fill:#eee,stroke:#333,stroke-width:2px,shape:cylinder;
-    classDef user fill:#fff,stroke:#000,stroke-width:2px;
+    classDef plain fill:#fff,stroke:#333,stroke-width:1px,color:#000;
+    classDef client fill:#f5f5f5,stroke:#333,stroke-width:2px,rx:5,ry:5,color:#000;
+    classDef cloud fill:#fff,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5,rx:5,ry:5,color:#000;
+    classDef server fill:#fff,stroke:#333,stroke-width:2px,rx:5,ry:5,color:#000;
+    classDef db fill:#eee,stroke:#333,stroke-width:2px,shape:cylinder,color:#000;
+    classDef user fill:#fff,stroke:#000,stroke-width:2px,color:#000;
 
     %% Nodes
-    User([👤 User / Microphone]) :::user
+    User(["👤 User / Microphone"]):::user
     
     subgraph ClientLayer ["🖥️ Client Application"]
         direction TB
-        UI[⚛️ React Frontend]:::client
-        Audio[🔊 Audio Processor<br/>(WebAudio API)]:::client
-        WS_C[🔌 WebSocket Client]:::client
+        UI["⚛️ React Frontend"]:::client
+        Audio["🔊 Audio Processor (WebAudio API)"]:::client
+        WS_C["🔌 WebSocket Client"]:::client
     end
     
     subgraph CloudLayer ["☁️ AI Infrastructure"]
-        Gemini[🧠 Gemini 2.5 Flash<br/>(Multimodal Live API)]:::cloud
+        Gemini["🧠 Gemini 2.5 Flash (Multimodal Live API)"]:::cloud
     end
     
     subgraph BackendLayer ["⚙️ Backend Server"]
         direction TB
         subgraph Logic ["Application Logic"]
-            FastAPI[🚀 FastAPI Router]:::server
-            Engine[🔎 Hybrid Search Engine]:::server
+            FastAPI["🚀 FastAPI Router"]:::server
+            Engine["🔎 Hybrid Search Engine"]:::server
         end
         
         subgraph Data ["💾 Persistence"]
-            Vector[(🗄️ ChromaDB<br/>Vector Store)]:::db
-            JSON[(📂 JSON Files<br/>Product Catalog)]:::db
+            Vector[("🗄️ ChromaDB Vector Store")]:::db
+            JSON[("📂 JSON Files Product Catalog")]:::db
         end
     end
 
@@ -128,23 +121,6 @@ sequenceDiagram
 
 ---
 
-## 🏗️ Core Logic & Recommendation Engine
-
-The backend implements intelligent logic to maximize user satisfaction and order value.
-
-### 🔍 Hybrid Parallel Search
-Instead of waiting for one search type to finish, we trigger keyword and vector searches concurrently. 
-*   **Keyword**: Instant matches for exact product names/categories.
-*   **Semantic (Vector)**: Finds related concepts (e.g., "sound systems" -> "Speakers").
-
-### 🛍️ Context-Aware Upselling
-When a user views a product, the system calculates "Related Products" using **Price Anchoring**:
-1.  **Stock Check**: Excludes out-of-stock items.
-2.  **Price Rule**: If the main product is expensive, suggest accessories (`Price < 40% of Main Product`).
-3.  **Ranking**: Sorts by rating to ensure quality recommendations.
-
----
-
 ## 📊 Performance & Cost Optimization
 
 We track costs and latency meticulously to ensure a production-ready experience.
@@ -191,50 +167,13 @@ We employed several techniques to reduce both cost and latency:
 *   **Why?**: Chinese characters have higher **semantic density** (more meaning per token) than English. This compresses the system prompt by ~30% without losing instruction adherence, as Gemini is natively multilingual.
 *   **Impact**: Lowers **Input Token Cost** and latency for every single turn of conversation.
 
----
+#### 5. Response Caching (Frontend)
+*   **Technique**: Cache frequently accessed API responses (e.g., product lists) on the client for 60 seconds.
+*   **Impact**: Reduces redundant API calls and network overhead for repeated queries.
 
-## 🚀 Deployment
-
-### 🛠️ Prerequisites
--   **Node.js**: v18+
--   **Python**: 3.10+
--   **Google Cloud API Key**: With Gemini Multimodal Live API access.
-
-### 💻 Local Deployment
-
-**1. Backend Setup**
-```bash
-cd backend
-python -m venv venv
-# Windows: .\venv\Scripts\activate | Mac/Linux: source venv/bin/activate
-pip install -r requirements.txt
-python main.py
-```
-*Server starts on `http://localhost:8000`*
-
-**2. Frontend Setup**
-```bash
-# In root directory
-npm install
-npm run dev
-```
-*App opens at `http://localhost:5173`*
-
-**3. Environment Variables**
-Create `.env.local`:
-```env
-VITE_GEMINI_API_KEY=your_api_key_here
-```
-
-### 🐳 Docker Deployment
-The easiest way to run the full stack:
-```bash
-docker-compose up --build
-```
-
-### ☁️ Production Deployment
--   **Frontend**: Deploy to **Vercel** or Netlify. Set `VITE_API_BASE_URL` to your backend URL.
--   **Backend**: Deploy to **Render** or Railway. Use `python backend/main.py` as the start command.
+#### 6. Lazy Loading Vector Databases
+*   **Technique**: Initialize the heavy ChromaDB vector store only when semantic search is actually requested, rather than at application startup.
+*   **Impact**: Decreases backend startup time by ~2-3 seconds.
 
 ---
 
@@ -256,10 +195,3 @@ Voice Agent/
 │
 └── Files/                        # Data Source (JSONs)
 ```
-
-## 🔮 Future Roadmap
-
--   [ ] **Voice Authentication**: Biometric verification for secure order history access.
--   [ ] **Multi-language Support**: Spanish and Hindi support using Gemini's native multilingual capabilities.
--   [ ] **Android Application**: Native wrapper for lower latency and background processing.
--   [ ] **Analytics Dashboard**: Real-time admin view of user retention and popular products.
